@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	helper "go_catering/helpers"
 	"go_catering/resource/model"
 	reqModel "go_catering/resource/reqmodel"
@@ -158,4 +159,154 @@ func GetProductByStore(userID string, storeID string) map[string]interface{} {
 	reponse := helper.Message(http.StatusOK, "Succesfull get All Product")
 	reponse["data"] = result
 	return reponse
+}
+
+//GetAllDelivery ..
+func GetAllDelivery() map[string]interface{} {
+	fromDate := time.Now().AddDate(0, 0, -1)
+	toDate := time.Now().AddDate(0, 0, 1)
+	filter := bson.M{"$or": []bson.M{
+		bson.M{"deliverydate": bson.M{
+			"$gt": fromDate,
+			"$lt": toDate,
+		}},
+		bson.M{"dailyproduct": false},
+	}}
+
+	result := []resModel.DelivProduct{}
+
+	cursor, err := collectionDelivery.Find(context.TODO(), filter)
+
+	if err != nil {
+		fmt.Println("masok")
+		log.Printf("Error when getting all product %v\n", err)
+		response := helper.Message(http.StatusInternalServerError, "Someting wrong")
+		response["data"] = nil
+		return response
+	}
+
+	for cursor.Next(context.TODO()) {
+		var delivProduct *model.DeliveryProduct
+		cursor.Decode(&delivProduct)
+
+		user := model.User{}
+		filterUser := bson.M{"$and": []bson.M{
+			bson.M{"id": delivProduct.CustomerID},
+			bson.M{"base.deletedby": ""},
+		}}
+
+		err := collectionUser.FindOne(context.TODO(), filterUser).Decode(&user)
+
+		if err != nil {
+			fmt.Println("masok user")
+			log.Printf("Error when getting all product %v\n", err)
+			response := helper.Message(http.StatusInternalServerError, "Someting wrong")
+			response["data"] = nil
+			return response
+		}
+
+		delivRes := resModel.DelivProduct{
+			ID:              delivProduct.ID,
+			ProductID:       delivProduct.ProductID,
+			CustomerID:      delivProduct.CustomerID,
+			DailyProduct:    delivProduct.DailyProduct,
+			CustomerAddress: user.Address,
+		}
+
+		result = append(result, delivRes)
+	}
+
+	reponse := helper.Message(http.StatusOK, "Succesfull get All deliv product")
+	reponse["data"] = result
+	return reponse
+}
+
+//UpdateDeliver ..
+func UpdateDeliver(id string, deliver *reqModel.UpdateDeliverStatus) map[string]interface{} {
+	//filter := bson.M{""}
+	filter := bson.M{"$and": []bson.M{
+		bson.M{"id": deliver.ID},
+		bson.M{"base.deletedby": ""},
+	}}
+
+	if deliver.DailyProduct == true {
+		newData := bson.M{
+			"$set": bson.M{
+				"status":           2,
+				"todaystatus":      deliver.DeliverStatus,
+				"deliverdate":      time.Now().AddDate(0, 0, 1),
+				"base.updatedtime": time.Now(),
+				"base.updatedby":   id,
+			},
+		}
+		result, err := collectionDelivery.UpdateOne(context.TODO(), filter, newData)
+
+		if err != nil {
+			log.Printf("Error when updating product : %v\n", err)
+			response := helper.Message(http.StatusInternalServerError, "Someting wrong")
+			response["data"] = nil
+			return response
+		}
+
+		if result.MatchedCount == 0 {
+			response := helper.Message(http.StatusNotFound, "Not found Document")
+			response["data"] = nil
+			return response
+		}
+
+	} else {
+		if deliver.DeliverStatus == 3 {
+			newData := bson.M{
+				"$set": bson.M{
+					"status":           deliver.DeliverStatus,
+					"todaystatus":      deliver.DeliverStatus,
+					"deliverydate":     time.Now().AddDate(0, 0, 1),
+					"base.updatedtime": time.Now(),
+					"base.updatedby":   id,
+				},
+			}
+			result, err := collectionDelivery.UpdateOne(context.TODO(), filter, newData)
+
+			if err != nil {
+				log.Printf("Error when updating product : %v\n", err)
+				response := helper.Message(http.StatusInternalServerError, "Someting wrong")
+				response["data"] = nil
+				return response
+			}
+
+			if result.MatchedCount == 0 {
+				response := helper.Message(http.StatusNotFound, "Not found Document")
+				response["data"] = nil
+				return response
+			}
+		} else {
+			newData := bson.M{
+				"$set": bson.M{
+					"status":           deliver.DeliverStatus,
+					"todaystatus":      deliver.DeliverStatus,
+					"base.updatedtime": time.Now(),
+					"base.updatedby":   id,
+				},
+			}
+			result, err := collectionDelivery.UpdateOne(context.TODO(), filter, newData)
+
+			if err != nil {
+				log.Printf("Error when updating product : %v\n", err)
+				response := helper.Message(http.StatusInternalServerError, "Someting wrong")
+				response["data"] = nil
+				return response
+			}
+
+			if result.MatchedCount == 0 {
+				response := helper.Message(http.StatusNotFound, "Not found Document")
+				response["data"] = nil
+				return response
+			}
+		}
+	}
+
+	reponse := helper.Message(http.StatusOK, "Succesfull Edit product")
+	reponse["data"] = nil
+	return reponse
+
 }

@@ -27,3 +27,32 @@ func LoginUser(c *gin.Context) {
 
 	helpers.Respond(c.Writer, response)
 }
+
+//AllProduct ..
+func AllProduct(c *gin.Context) {
+
+	response := service.GetAllProduct()
+
+	helpers.Respond(c.Writer, response)
+}
+
+//CreateTransaction ....
+func CreateTransaction(c *gin.Context) {
+	idUser := c.MustGet("credUser").(string)
+	var trx *req.TransactionReq
+	c.BindJSON(&trx)
+
+	response := service.Transaction(idUser, trx)
+
+	helpers.Respond(c.Writer, response)
+}
+
+//UpdateTransaction ....
+func UpdateTransaction(c *gin.Context) {
+	var trx *req.UpdateTrxReq
+	c.BindJSON(&trx)
+
+	response := service.UpdateTransaction(trx)
+
+	helpers.Respond(c.Writer, response)
+}

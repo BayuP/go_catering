@@ -56,3 +56,21 @@ func CreateProduct(c *gin.Context) {
 
 	helpers.Respond(c.Writer, response)
 }
+
+//GetAllDeliv ...
+func GetAllDeliv(c *gin.Context) {
+	response := service.GetAllDelivery()
+
+	helpers.Respond(c.Writer, response)
+}
+
+//UpdateDelivery ....
+func UpdateDelivery(c *gin.Context) {
+	idUser := c.MustGet("credUser").(string)
+	var update *req.UpdateDeliverStatus
+	c.BindJSON(&update)
+
+	response := service.UpdateDeliver(idUser, update)
+
+	helpers.Respond(c.Writer, response)
+}

@@ -15,3 +15,10 @@ type ReqCreateProduct struct {
 	Stock        int    `json:"stock"`
 	DailyProduct bool   `json:"daily_product"`
 }
+
+//UpdateDeliverStatus ...
+type UpdateDeliverStatus struct {
+	ID            string `json:"id"`
+	DeliverStatus int    `json:"deliver_status"`
+	DailyProduct  bool   `json:"daily_product"`
+}

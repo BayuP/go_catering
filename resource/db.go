@@ -51,5 +51,7 @@ func Connect() {
 	service.UserCollections(db)
 	service.StoreCollections(db)
 	service.ProductCollections(db)
+	service.TransactionCollections(db)
+	service.DeliveryCollections(db)
 	return
 }

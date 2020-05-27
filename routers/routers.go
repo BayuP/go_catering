@@ -29,8 +29,16 @@ func SetupRouter() *gin.Engine {
 	{
 		supplier.POST("/store", controller.CreateStore)
 		supplier.GET("/store/all", controller.GetAllStore)
-		supplier.GET("/store/product/", controller.GetAllProductByStore)
+		supplier.GET("/store/product", controller.GetAllProductByStore)
 		supplier.POST("/product", controller.CreateProduct)
+		supplier.GET("/delivery/all", controller.GetAllDeliv)
+		supplier.PUT("/delivery", controller.UpdateDelivery)
+	}
+	user.Use(middleware.AuthMiddlewaresUser())
+	{
+		user.GET("/product", controller.AllProduct)
+		user.POST("/trx", controller.CreateTransaction)
+		user.PUT("/trx", controller.UpdateTransaction)
 	}
 
 	return r

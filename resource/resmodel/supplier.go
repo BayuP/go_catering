@@ -16,3 +16,12 @@ type ProductByStoreRes struct {
 	Stock        int    `json:"stock"`
 	DailyProduct bool   `json:"daily_product"`
 }
+
+// DelivProduct ...
+type DelivProduct struct {
+	ID              string `json:"id"`
+	ProductID       string `json:"product_id"`
+	CustomerID      string `json:"customer_id"`
+	CustomerAddress string `json:"cust_address"`
+	DailyProduct    bool   `json:"daily_product"`
+}
