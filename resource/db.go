@@ -49,7 +49,7 @@ func Connect() {
 
 	db := client.Database(dbName)
 	service.UserCollections(db)
-	// service.ProductCollections(db)
-	// service.StoreCollections(db)
+	service.StoreCollections(db)
+	service.ProductCollections(db)
 	return
 }

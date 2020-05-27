@@ -17,3 +17,13 @@ func CreateUser(c *gin.Context) {
 
 	helpers.Respond(c.Writer, response)
 }
+
+//LoginUser ..
+func LoginUser(c *gin.Context) {
+	var login *req.LoginReq
+	c.BindJSON(&login)
+
+	response := service.Login(login)
+
+	helpers.Respond(c.Writer, response)
+}

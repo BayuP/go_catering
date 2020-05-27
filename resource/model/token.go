@@ -7,6 +7,7 @@ type Token struct {
 	//UserID uint
 	ID       string
 	Username string
+	IsSeller bool
 	//Email  string
 	*jwt.StandardClaims
 }
